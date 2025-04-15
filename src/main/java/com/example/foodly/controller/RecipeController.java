@@ -3,9 +3,14 @@ package com.example.foodly.controller;
 import com.example.foodly.dto.RecipeDTO;
 import com.example.foodly.dto.RecipeResponseDTO;
 import com.example.foodly.mapper.RecipeMapper;
-import com.example.foodly.model.Recipe;
+import com.example.foodly.model.recipe.Recipe;
 import com.example.foodly.repository.RecipeRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +27,18 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
 
     @GetMapping
+    @Cacheable("recipes")
     public List<RecipeResponseDTO> index() {
         return recipeRepository.findAll().stream().map(RecipeMapper::toDTO).toList();
     }
 
     @PostMapping
-    public ResponseEntity<RecipeResponseDTO> create(@RequestBody RecipeDTO recipe){
+    @CacheEvict(value = "recipes", allEntries = true)
+    @Operation(summary = "Cadastrar receita", description = "Insere uma receita...", responses = {
+            @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400"),
+    })
+    public ResponseEntity<RecipeResponseDTO> create(@RequestBody @Valid RecipeDTO recipe){
         Recipe recipe1 = RecipeMapper.toEntity(recipe);
         recipeRepository.save(recipe1);
         return ResponseEntity.status(HttpStatus.CREATED).body(RecipeMapper.toDTO(recipe1));
@@ -39,7 +50,7 @@ public class RecipeController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<RecipeResponseDTO> update(@PathVariable Long id, @RequestBody RecipeDTO dto) {
+    public ResponseEntity<RecipeResponseDTO> update(@PathVariable Long id, @RequestBody @Valid RecipeDTO dto) {
         Optional<Recipe> receitaOptional = recipeRepository.findById(id);
         if (receitaOptional.isEmpty()) return ResponseEntity.notFound().build();
 

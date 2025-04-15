@@ -1,4 +1,4 @@
-package com.example.foodly.model;
+package com.example.foodly.model.recipe;
 
 public enum DifficultyType {
 

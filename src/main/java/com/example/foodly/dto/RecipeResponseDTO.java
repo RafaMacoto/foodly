@@ -1,7 +1,7 @@
 package com.example.foodly.dto;
 
-import com.example.foodly.model.CategoryType;
-import com.example.foodly.model.DifficultyType;
+import com.example.foodly.model.recipe.CategoryType;
+import com.example.foodly.model.recipe.DifficultyType;
 
 import java.util.List;
 

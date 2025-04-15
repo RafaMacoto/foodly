@@ -2,7 +2,7 @@ package com.example.foodly.mapper;
 
 import com.example.foodly.dto.RecipeDTO;
 import com.example.foodly.dto.RecipeResponseDTO;
-import com.example.foodly.model.Recipe;
+import com.example.foodly.model.recipe.Recipe;
 
 public class RecipeMapper {
     public static RecipeResponseDTO toDTO(Recipe recipe) {
