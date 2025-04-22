@@ -1,16 +1,22 @@
 package com.example.foodly.controller;
 
 import com.example.foodly.dto.RecipeDTO;
+import com.example.foodly.dto.RecipeFilterDTO;
 import com.example.foodly.dto.RecipeResponseDTO;
 import com.example.foodly.mapper.RecipeMapper;
 import com.example.foodly.model.recipe.Recipe;
 import com.example.foodly.repository.RecipeRepository;
+import com.example.foodly.specification.RecipeSpecification;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +34,19 @@ public class RecipeController {
 
     @GetMapping
     @Cacheable("recipes")
-    public List<RecipeResponseDTO> index() {
-        return recipeRepository.findAll().stream().map(RecipeMapper::toDTO).toList();
+    @Operation(summary = "Listar receitas", description = "Lista receitas...", responses = {@ApiResponse(responseCode = "200")})
+    public Page<Recipe> index(
+            RecipeFilterDTO filter,
+            @PageableDefault(size = 10 , sort = "servings", direction = Sort.Direction.DESC) Pageable pageable) {
+
+//        var probe = Recipe.builder().title(filter.title()).servings(filter.servings()).build();
+//        var example = Example.of(probe);
+//        Page<Recipe> recipes = recipeRepository.findAll(example, pageable);
+//        Page<RecipeResponseDTO> recipeDto = recipes.map(r -> RecipeMapper.toDTO(r));
+
+        var specification = RecipeSpecification.withFilter(filter);
+
+        return recipeRepository.findAll(specification, pageable);
     }
 
     @PostMapping
